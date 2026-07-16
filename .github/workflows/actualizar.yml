@@ -1,0 +1,42 @@
+name: Actualizar catálogo
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Preparar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Extraer precios y existencias actuales
+        run: python scraper/extraer_catalogo.py
+
+      - name: Actualizar atributos de productos nuevos
+        run: python scraper/enriquecer_atributos.py
+
+      - name: Subir catálogo si hubo cambios
+        run: |
+          git config user.name "Robot ROGODI"
+          git config user.email "robot@rogodi.mx"
+          if git diff --quiet -- catalogo.db; then
+            echo "Sin cambios en el catálogo, no se sube nada."
+          else
+            git add catalogo.db
+            git commit -m "Actualización automática de catálogo"
+            git push
+          fi
