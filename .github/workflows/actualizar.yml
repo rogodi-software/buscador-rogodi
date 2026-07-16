@@ -32,7 +32,7 @@ jobs:
       - name: Subir catálogo si hubo cambios
         run: |
           git config user.name "Robot ROGODI"
-          git config user.email "robot@rogodi.mx"
+          git config user.email "rodolfo.jr@rogodi.mx"
           if git diff --quiet -- catalogo.db; then
             echo "Sin cambios en el catálogo, no se sube nada."
           else
