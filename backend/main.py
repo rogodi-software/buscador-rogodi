@@ -3,10 +3,20 @@ from pathlib import Path
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 
-from busqueda import (
-    TEMPORADAS, _buscar_definicion_categoria, alternativas, buscar, cargar_productos,
-    categorias_de_temporada, productos_de_categoria,
-)
+try:
+    # Ejecucion local: uvicorn corre desde dentro de backend/, asi que
+    # busqueda.py es un modulo hermano directamente importable.
+    from busqueda import (
+        TEMPORADAS, _buscar_definicion_categoria, alternativas, buscar, cargar_productos,
+        categorias_de_temporada, productos_de_categoria,
+    )
+except ImportError:
+    # Vercel ejecuta el proyecto desde la raiz (backend.main:app), asi que
+    # busqueda.py solo es visible como parte del paquete backend.
+    from backend.busqueda import (
+        TEMPORADAS, _buscar_definicion_categoria, alternativas, buscar, cargar_productos,
+        categorias_de_temporada, productos_de_categoria,
+    )
 
 app = FastAPI(title="Buscador ROGODI")
 
