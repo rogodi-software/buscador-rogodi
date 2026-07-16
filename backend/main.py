@@ -115,4 +115,8 @@ async def sin_cache(request: Request, call_next):
     return response
 
 
-app.mount("/", StaticFiles(directory=ESTATICOS, html=True), name="static")
+if ESTATICOS.exists():
+    # Solo para desarrollo local (uvicorn). En Vercel la carpeta public/ no
+    # forma parte del paquete de la funcion: su CDN la sirve directo, sin
+    # pasar por este servidor.
+    app.mount("/", StaticFiles(directory=ESTATICOS, html=True), name="static")
