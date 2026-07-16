@@ -21,7 +21,7 @@ except ImportError:
 app = FastAPI(title="Buscador ROGODI")
 
 PRODUCTOS: list[dict] = []
-ESTATICOS = Path(__file__).resolve().parent.parent / "public"
+ESTATICOS = Path(__file__).resolve().parent / "static"
 
 
 @app.on_event("startup")
