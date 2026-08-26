@@ -235,6 +235,52 @@
     transition: opacity .25s, transform .25s; z-index: 80; max-width: 88vw; text-align: center;
   }
   .toast.mostrar { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .fab-objeciones {
+    position: fixed; left: 16px; bottom: 18px; width: 56px; height: 56px; border-radius: 50%;
+    background: var(--cian); color: #0a0e1a; border: none; font-size: 24px; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0,217,255,.45); display: flex; align-items: center;
+    justify-content: center; z-index: 70;
+  }
+  .modal-objeciones { max-height: 92vh; }
+  .obj-detalle { overflow-y: auto; flex: 1; min-height: 0; }
+  .obj-menu-intro { font-size: 12.5px; color: var(--gris); line-height: 1.5; margin-bottom: 14px; }
+  .obj-menu-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;
+  }
+  .obj-numero { font-size: 11px; color: var(--cian); font-weight: 800; letter-spacing: .5px; margin-top: 10px; }
+  .obj-titulo-frase { font-size: 16px; font-weight: 800; color: #fff; margin: 4px 0 14px; line-height: 1.3; }
+  .obj-bloque { margin-bottom: 14px; }
+  .obj-bloque h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .4px; color: var(--cian); margin: 0 0 6px; }
+  .obj-bloque > p { font-size: 13px; color: #dde3f0; line-height: 1.5; margin: 0 0 6px; }
+  .obj-paso {
+    background: #0f1626; border: 1px solid #1f2c47; border-radius: 12px; padding: 10px 12px; margin-bottom: 8px;
+  }
+  .obj-paso .paso-nombre { font-size: 11.5px; font-weight: 700; color: var(--ambar); margin-bottom: 5px; }
+  .obj-paso p { font-size: 13px; color: #dde3f0; line-height: 1.5; margin: 0 0 4px; }
+  .obj-paso p:last-child { margin-bottom: 0; }
+  .obj-especial {
+    background: #101a2e; border: 1px solid rgba(0,217,255,.27); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px;
+  }
+  .obj-especial .especial-nombre { font-size: 11.5px; font-weight: 700; color: var(--cian); margin-bottom: 5px; }
+  .obj-especial p { font-size: 13px; color: #dde3f0; line-height: 1.5; margin: 0 0 4px; }
+  .obj-especial p:last-child { margin-bottom: 0; }
+  .obj-enlace {
+    display: block; width: 100%; text-align: left; background: #141d33; border: 1px solid #2a3654;
+    color: #c5cde0; padding: 9px 12px; border-radius: 10px; font-size: 12.5px; margin-bottom: 6px; cursor: pointer;
+  }
+  .obj-evitar {
+    background: #1a0e16; border: 1px solid #3a2030; border-radius: 12px; padding: 10px 12px; margin-bottom: 14px;
+  }
+  .obj-evitar h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .4px; color: var(--rojo); margin: 0 0 6px; }
+  .obj-evitar p { font-size: 12.5px; color: #ffb3c1; line-height: 1.5; margin: 0 0 4px; }
+  .obj-otras { border-top: 1px solid #1f2c47; padding-top: 12px; margin-top: 6px; }
+  .obj-otras h4 { font-size: 11.5px; color: var(--gris); margin: 0 0 8px; text-transform: uppercase; letter-spacing: .4px; }
+  .obj-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .chip-obj {
+    background: #141d33; border: 1px solid #2a3654; color: #c5cde0; padding: 7px 11px;
+    border-radius: 20px; font-size: 12px; cursor: pointer;
+  }
 </style>
 </head>
 <body>
@@ -300,6 +346,18 @@
         <button id="btnCopiarCotizacion" class="btn-primario">📋 Copiar para WhatsApp</button>
       </div>
     </div>
+  </div>
+</div>
+
+<button id="btnObjeciones" class="fab-objeciones" aria-label="Guía de objeciones">🎯</button>
+
+<div id="modalObjeciones" class="modal-overlay" style="display:none">
+  <div class="modal-carrito modal-objeciones">
+    <div class="modal-header">
+      <div class="modal-titulo">🎯 Guía de objeciones</div>
+      <button id="btnCerrarObjeciones" class="btn-cerrar-modal" aria-label="Cerrar">✕</button>
+    </div>
+    <div id="contenidoObjeciones" class="obj-detalle"></div>
   </div>
 </div>
 
@@ -810,6 +868,424 @@ document.getElementById("btnCopiarCotizacion").addEventListener("click", () => {
 });
 
 actualizarBadgeCarrito();
+
+// ---------- Guía de objeciones comerciales ----------
+
+const OBJECIONES = [
+  {
+    id: 1, emoji: "🔀", corta: "Ya trabaja con otra marca",
+    titulo: "“YA TRABAJO CON EVOLUM / IOL / OTRA MARCA”",
+    significa: [
+      "El cliente ya tiene un proveedor y no ve una razón inmediata para abrirle espacio a otro.",
+      "No necesariamente está rechazando GS POWER.",
+      "Está diciendo: “Ya tengo resuelta esta necesidad. Dime por qué me conviene trabajar también contigo.”"
+    ],
+    objetivo: [
+      "No atacar a la competencia. No intentar que el cliente deje inmediatamente la marca que ya maneja.",
+      "El objetivo es conseguir un espacio como segundo proveedor y demostrar posteriormente el servicio de ROGODI."
+    ],
+    pasos: [
+      { titulo: "Paso 1 — Validar", lineas: ["“Perfecto. Si la marca te funciona, no te voy a decir que dejes de trabajar con ellos.”"] },
+      { titulo: "Paso 2 — Cambiar el enfoque", lineas: ["“Lo que quiero es ganarme también un lugar contigo y que puedas comparar cómo trabajamos nosotros.”"] },
+      { titulo: "Paso 3 — Presentar el valor de ROGODI", lineas: ["“Nosotros no solamente buscamos dejarte mercancía. Te damos garantía de 2 años, envío sin costo, atención directa, apoyo para la imagen de tu negocio y cuidamos mucho las zonas donde desarrollamos la marca.”"] },
+      { titulo: "Paso 4 — Amarre", lineas: ["“Al final no solamente importa quién te vende, también importa quién te responde después de venderte, ¿estás de acuerdo?”"] },
+      { titulo: "Paso 5 — Cierre", lineas: ["“Si nosotros te damos ese nivel de servicio, ¿nos darías la oportunidad de trabajar contigo también?”"] }
+    ],
+    especiales: [
+      { titulo: "Si responde: “Sí, podría probar”", lineas: [
+        "“Perfecto. Eso es exactamente lo que busco. Que primero conozcas cómo trabajamos y después tú mismo decidas cuánto quieres crecer con nosotros.”",
+        "Después: “Para empezar bien, ¿prefieres arrancar con una operación alrededor de $30,000 o hacer un surtido más completo cercano a $50,000?”"
+      ] }
+    ],
+    evitar: [
+      "No decir: “Evolum es mala” / “IOL no tiene nuestra calidad” / “Nuestros focos son mucho mejores” / “Déjalos y trabaja solamente conmigo.”",
+      "No convertir inmediatamente la conversación en una pelea entre productos."
+    ]
+  },
+  {
+    id: 2, emoji: "📦", corta: "Tengo mucho inventario",
+    titulo: "“TENGO MUCHO INVENTARIO”",
+    significa: [
+      "El cliente tiene miedo de meter más dinero en mercancía y quedarse con producto parado.",
+      "El problema no necesariamente es GS POWER. El problema es el exceso de inventario."
+    ],
+    objetivo: [
+      "Demostrar que ROGODI no quiere llenarle la tienda de mercancía.",
+      "La intención es complementar su inventario y ayudarle a iniciar de manera inteligente."
+    ],
+    pasos: [
+      { titulo: "Paso 1 — Investigar", lineas: ["“Entiendo. ¿Tienes mucho inventario de todas las medidas o principalmente de algunas?”", "Esperar respuesta."] },
+      { titulo: "Paso 2 — Adaptar la propuesta", lineas: ["“Entonces no tendría sentido que yo te vendiera más de lo que ya tienes.”", "“Podemos empezar precisamente con las medidas donde tienes menos inventario.”"] },
+      { titulo: "Paso 3 — Vender servicio", lineas: ["“Además, nosotros no queremos dejarte mercancía y desaparecer. La idea es darte seguimiento para ver qué se mueve y qué conviene ir reponiendo.”"] },
+      { titulo: "Paso 4 — Reducir el riesgo", lineas: ["“No necesitas entrar cargado de todo. Podemos hacer un surtido mucho más pensado.”"] },
+      { titulo: "Paso 5 — Cierre", lineas: ["“Si armamos el pedido únicamente sobre lo que te hace falta o donde tienes menos inventario, ¿sí tendría sentido empezar con nosotros?”"] }
+    ],
+    especiales: [
+      { titulo: "Si sigue dudando", lineas: [
+        "“¿Qué medidas son las que hoy tienes más saturadas?”",
+        "Con la respuesta, excluirlas del pedido.",
+        "Después: “Entonces esas las dejamos fuera. Vamos solamente con lo que realmente te conviene.”"
+      ] }
+    ],
+    evitar: ["No ofrecer descuento inmediatamente. Si el problema es inventario, bajar el precio no elimina la verdadera objeción."]
+  },
+  {
+    id: 3, emoji: "🧪", corta: "Primero quiero probarlos",
+    titulo: "“PRIMERO QUIERO PROBARLOS”",
+    significa: ["Hay interés. El cliente todavía no tiene suficiente confianza para hacer una inversión fuerte. Quiere reducir su riesgo."],
+    objetivo: [
+      "Aceptar la prueba, pero convertirla en una primera operación comercial seria.",
+      "El cliente debe probar no solamente el producto, sino también el servicio de ROGODI."
+    ],
+    pasos: [
+      { titulo: "Paso 1 — Aceptar", lineas: ["“Me parece correcto.”", "“Yo tampoco esperaría que hagas una compra fuerte sin conocer primero cómo trabajamos.”"] },
+      { titulo: "Paso 2 — Cambiar la idea de prueba", lineas: ["“Pero quiero que pruebes algo más que el foco.”", "“Quiero que pruebes nuestra entrega, nuestra atención, cómo respondemos una garantía y el seguimiento que te damos.”"] },
+      { titulo: "Paso 3 — Reducir riesgo", lineas: ["“Por eso podemos empezar con una operación controlada y después crecer conforme tú mismo veas cómo trabajamos.”"] },
+      { titulo: "Paso 4 — Obtener compromiso", lineas: ["“Si en esta primera operación nosotros cumplimos con todo lo que te estoy diciendo, ¿estarías dispuesto a seguir creciendo la cuenta con nosotros?”", "Esperar respuesta."] },
+      { titulo: "Paso 5 — Cierre", lineas: ["“Perfecto. Entonces hagamos una prueba que realmente te permita conocer la marca y conocernos a nosotros.”", "“¿Te sentirías más cómodo empezando alrededor de $30,000 o prefieres un surtido más completo cercano a $50,000?”"] }
+    ],
+    evitar: ["No decir inmediatamente: “Llévate dos cajas.” Una prueba demasiado pequeña puede no darle al cliente suficiente exposición para evaluar realmente la marca."]
+  },
+  {
+    id: 4, emoji: "🤔", corta: "Déjame pensarlo",
+    titulo: "“DÉJAME PENSARLO”",
+    significa: ["Normalmente no es la objeción verdadera. Puede significar: está caro, ya tiene proveedor, tiene inventario, no conoce la marca, no quiere invertir ahorita, quiere consultar con alguien más, o no está suficientemente convencido."],
+    objetivo: ["Descubrir la objeción real antes de abandonar la tienda."],
+    pasos: [
+      { titulo: "Paso 1 — No confrontar", lineas: ["“Claro, sin problema.”"] },
+      { titulo: "Paso 2 — Pedir claridad", lineas: ["“Nada más ayúdame a entender algo para no estarte insistiendo después con algo que no te haga sentido.”"] },
+      { titulo: "Paso 3 — Proceso de eliminación", lineas: ["“¿Lo que quieres pensar es más por el precio, por la inversión, porque ya manejas otra marca, porque tienes inventario o porque todavía no estás convencido de trabajar con nosotros?”", "Esperar respuesta."] }
+    ],
+    enlaces: [
+      { texto: "Si dice precio → ir a “ESTÁ CARO”", id: 5 },
+      { texto: "Si dice inventario → ir a “TENGO MUCHO INVENTARIO”", id: 2 },
+      { texto: "Si dice otra marca → ir a “YA TRABAJO CON OTRA MARCA”", id: 1 },
+      { texto: "Si dice que no conoce GS POWER → ir a “NO CONOZCO GS POWER”", id: 8 }
+    ],
+    especiales: [
+      { titulo: "Después de resolverla", lineas: ["“Entonces, si resolvemos ese punto, ¿sí estarías dispuesto a empezar a trabajar con nosotros?”"] }
+    ],
+    evitar: [
+      "No decir únicamente: “Está bien, yo te marco después.”",
+      "No abandonar la visita sin intentar descubrir qué está frenando realmente la compra."
+    ]
+  },
+  {
+    id: 5, emoji: "💰", corta: "Está caro",
+    titulo: "“ESTÁ CARO”",
+    significa: ["El cliente está comparando principalmente el precio de compra. Todavía no está tomando en cuenta todo el valor de trabajar con ROGODI."],
+    objetivo: ["Mover la conversación de precio hacia: margen, servicio, garantía, respuesta, atención, protección de zona y costos posteriores."],
+    pasos: [
+      { titulo: "Paso 1 — Investigar", lineas: ["“Entiendo. ¿Contra qué marca o proveedor lo estás comparando?”", "Esperar respuesta."] },
+      { titulo: "Paso 2 — Poner perspectiva", lineas: ["“Si lo comparamos solamente por precio, siempre va a existir alguien más barato.”"] },
+      { titulo: "Paso 3 — Vender la empresa", lineas: ["“La diferencia es lo que tienes detrás de la compra.”", "“Con nosotros tienes garantía de 2 años, envío gratis, atención directa, apoyo para tu negocio y una empresa que te responde después de venderte.”"] },
+      { titulo: "Paso 4 — Hablar de rentabilidad", lineas: ["“Además, no solamente importa cuánto pagas por la mercancía.”", "“Importa cuánto ganas cuando la vendes y cuántos problemas tienes después.”"] },
+      { titulo: "Paso 5 — Pregunta de valor", lineas: ["“¿Qué te conviene más: ahorrar un poco al comprar o trabajar con un proveedor que te deje buen margen y además te responda cuando tengas un problema?”"] },
+      { titulo: "Paso 6 — Cierre", lineas: ["“Si el margen te funciona y nosotros te damos ese respaldo, ¿el precio todavía sería una razón para no empezar?”"] }
+    ],
+    especiales: [
+      { titulo: "Si compara con Evolum", lineas: [
+        "“Evolum puede tener líneas más económicas.”",
+        "“Nosotros no queremos competir solamente por ser los más baratos.”",
+        "“Queremos que cuando tengas un problema tengas quién responda, que puedas ganar bien y que tengas respaldo de la marca.”"
+      ] }
+    ],
+    evitar: [
+      "No ofrecer inmediatamente mejor precio. Primero defender el valor.",
+      "Si se baja el precio demasiado rápido, el cliente entiende que el precio inicial estaba inflado."
+    ]
+  },
+  {
+    id: 6, emoji: "🤝", corta: "Mejor precio si agarro más",
+    titulo: "“DAME MEJOR PRECIO Y AGARRO MÁS”",
+    significa: ["Puede ser una oportunidad verdadera de aumentar el pedido, o una táctica de negociación para obtener descuento sin realmente comprometer más volumen."],
+    objetivo: ["Conseguir primero un compromiso concreto. Después negociar."],
+    pasos: [
+      { titulo: "Paso 1 — No conceder todavía", lineas: ["“Sí podemos revisar una condición diferente si realmente cambia el volumen.”"] },
+      { titulo: "Paso 2 — Pedir cantidad concreta", lineas: ["“¿De cuánto estaríamos hablando?”", "Esperar respuesta. Ejemplo — Cliente: “Si me mejoras precio, te compro $70,000.”"] },
+      { titulo: "Paso 3 — Obtener compromiso", lineas: ["“Si yo te consigo una condición especial para esos $70,000, ¿cerramos hoy el pedido?”", "Esperar un sí."] }
+    ],
+    especiales: [
+      { titulo: "Si responde sí", lineas: ["“Perfecto. Entonces el descuento lo trabajamos sobre esos $70,000.”"] },
+      { titulo: "Si responde ambiguo", lineas: ["“Para poder pedir una condición diferente necesito saber que realmente estamos hablando de ese volumen.”"] },
+      { titulo: "Si quiere descuento de distribuidor", lineas: [
+        "“Las condiciones de distribuidor están pensadas para cuentas que manejan un volumen constante.”",
+        "“Cuando la cuenta llega a esos niveles, ahí sí podemos darte una condición diferente porque ya hablamos de una relación comercial mucho más grande.”"
+      ] }
+    ],
+    evitar: [
+      "Nunca hacer esto: Cliente “Dame mejor precio” → Vendedor “Te doy otro 5%” → Cliente “Bueno, déjame pensarlo.”",
+      "Primero compromiso. Después descuento."
+    ]
+  },
+  {
+    id: 7, emoji: "🏷️", corta: "Ya maneja marca buena",
+    titulo: "“YA MANEJO UNA MARCA BUENA”",
+    significa: ["El cliente considera que ya tiene cubierta la parte de calidad. No ve una razón para agregar otra marca similar."],
+    objetivo: [
+      "Cambiar la comparación. No competir solamente sobre cuál foco es mejor.",
+      "Comparar también qué empresa ofrece mejor relación comercial."
+    ],
+    pasos: [
+      { titulo: "Paso 1 — Reconocer", lineas: ["“Está bien.”", "“De hecho, prefiero que ya tengas experiencia trabajando con una buena marca.”"] },
+      { titulo: "Paso 2 — Cambiar el terreno", lineas: ["“Yo no quiero convencerte solamente por el producto.”", "“Quiero que compares también la empresa que está detrás.”"] },
+      { titulo: "Paso 3 — Diferenciar", lineas: ["“Nosotros buscamos trabajar muy cerca de las tiendas fuertes.”", "“Te damos garantía, envío, apoyo comercial, atención directa y cuidamos mucho las zonas donde desarrollamos la marca.”"] },
+      { titulo: "Paso 4 — Pregunta clave", lineas: ["“¿Qué tendría que hacer un proveedor nuevo para que tú le dieras espacio junto a la marca que ya manejas?”", "Escuchar atentamente. Puede decir: mejor servicio, mejor margen, crédito, entregas, garantía, exclusividad, apoyo publicitario."] }
+    ],
+    especiales: [
+      { titulo: "Usa su respuesta (ejemplo)", lineas: [
+        "Cliente: “Que me respondan rápido.”",
+        "Vendedor: “Perfecto. Si nosotros te demostramos que respondemos rápido y te damos seguimiento directo, ¿nos darías la oportunidad de empezar contigo?”"
+      ] }
+    ],
+    evitar: ["No atacar la marca que el cliente ya considera buena. Eso puede hacer que la defienda todavía más."]
+  },
+  {
+    id: 8, emoji: "❓", corta: "No conoce GS Power",
+    titulo: "“NO CONOZCO GS POWER”",
+    significa: ["Existe incertidumbre. El cliente todavía no confía lo suficiente en la marca."],
+    objetivo: ["Transferir confianza desde ROGODI hacia GS POWER. No intentar resolver todo con especificaciones técnicas."],
+    pasos: [
+      { titulo: "Paso 1 — Normalizar", lineas: ["“Es completamente válido.”", "“Justamente por eso estoy viniendo personalmente.”"] },
+      { titulo: "Paso 2 — Presentar quién está detrás", lineas: ["“Más que pedirte que confíes solamente en una marca que todavía no conoces, quiero que conozcas cómo trabajamos nosotros.”"] },
+      { titulo: "Paso 3 — Reducir riesgo", lineas: ["“Te damos 2 años de garantía, envío gratis, atención directa y nosotros mismos respondemos ante cualquier problema.”"] },
+      { titulo: "Paso 4 — Mostrar compromiso", lineas: ["“Además, no buscamos meter GS POWER en todas las tiendas.”", "“Preferimos trabajar con negocios fuertes y desarrollar bien la zona.”"] },
+      { titulo: "Paso 5 — Obtener compromiso", lineas: ["“Si en esta primera operación nosotros te demostramos que respondemos como te estoy diciendo, ¿estarías dispuesto a seguir creciendo con nosotros?”"] },
+      { titulo: "Paso 6 — Cierre", lineas: ["“Entonces hagamos una primera operación que realmente te permita conocernos.”", "“¿La armamos alrededor de $30,000 o prefieres empezar con un surtido más completo cercano a $50,000?”"] }
+    ],
+    evitar: ["No intentar compensar la falta de confianza hablando demasiado de watts, lúmenes o características técnicas. La confianza se construye principalmente con respaldo."]
+  },
+  {
+    id: 9, emoji: "💵", corta: "No quiere meter más dinero",
+    titulo: "“AHORITA NO QUIERO METER MÁS DINERO”",
+    significa: ["El cliente puede tener interés, pero no quiere comprometer flujo de efectivo."],
+    objetivo: ["Descubrir si el problema es liquidez, momento del mes, inventario, tamaño del pedido o condiciones de pago."],
+    pasos: [
+      { titulo: "Paso 1 — Investigar", lineas: ["“Entiendo. ¿Es porque ahorita tienes mucho dinero metido en inventario o porque quieres cuidar flujo?”", "Esperar respuesta."] }
+    ],
+    especiales: [
+      { titulo: "Si es flujo", lineas: ["“Podemos revisar una operación que no te presione tanto.”", "“Lo importante para mí es empezar la relación, no descapitalizarte.”"] },
+      { titulo: "Si existe posibilidad de crédito", lineas: ["“Dependiendo de la cuenta podemos revisar también condiciones de pago.”"] },
+      { titulo: "Cierre", lineas: ["“Si encontramos una forma de empezar sin presionarte el flujo, ¿sí tendría sentido comenzar con nosotros?”"] }
+    ],
+    evitar: ["No ofrecer crédito automáticamente. Primero entender el problema."]
+  },
+  {
+    id: 10, emoji: "📐", corta: "No tiene espacio",
+    titulo: "“NO TENGO ESPACIO PARA OTRA MARCA”",
+    significa: ["Puede referirse literalmente a espacio físico o a saturación de marcas."],
+    objetivo: ["Demostrar que GS POWER no necesita entrar como una línea gigante desde el primer día."],
+    pasos: [
+      { titulo: "Qué decir", lineas: [
+        "“Lo entiendo.”",
+        "“Por eso tampoco quiero llenarte de mercancía desde el principio.”",
+        "“Podemos comenzar únicamente con PEGASUS y las medidas que más sentido tengan.”",
+        "Después: “Una vez que veas rotación, tú mismo decides si vale la pena ampliar.”"
+      ] }
+    ],
+    especiales: [
+      { titulo: "Cierre", lineas: ["“Si empezamos con una selección pequeña y bien pensada, ¿sí estarías dispuesto a darle espacio?”"] }
+    ]
+  },
+  {
+    id: 11, emoji: "📩", corta: "Mándame info y te aviso",
+    titulo: "“MÁNDAME INFORMACIÓN Y YO TE AVISO”",
+    significa: ["Puede ser interés real o simplemente una manera educada de terminar la conversación."],
+    objetivo: ["No salir de la visita únicamente con un “te aviso”. Conseguir un siguiente paso concreto."],
+    pasos: [
+      { titulo: "Qué decir", lineas: [
+        "“Claro, te mando toda la información.”",
+        "Después: “Pero para mandarte algo que realmente te sirva, ¿qué es lo que más te interesa revisar: precios, margen, garantía, surtido o condiciones comerciales?”",
+        "Esperar respuesta.",
+        "Después: “Perfecto. Te mando justamente eso.”",
+        "Cierre: “Si al revisarlo te hace sentido, ¿qué necesitaríamos resolver para poder arrancar?”"
+      ] }
+    ],
+    especiales: [
+      { titulo: "Mejor todavía (antes de irte)", lineas: ["“¿Cuándo te parece bien que lo revisemos juntos?”"] }
+    ],
+    evitar: ["No limitarse a mandar catálogo y desaparecer."]
+  },
+  {
+    id: 12, emoji: "👥", corta: "Tiene que consultarlo",
+    titulo: "“TENGO QUE CONSULTARLO CON MI SOCIO / JEFE”",
+    significa: ["La persona con la que estás hablando no tiene toda la autoridad de compra."],
+    objetivo: ["Convertir a esa persona en aliado y facilitarle la venta interna."],
+    pasos: [
+      { titulo: "Qué decir", lineas: [
+        "“Perfecto.”",
+        "“Para que puedas explicárselo bien, ¿qué crees que sería lo que más le preocuparía a él?”",
+        "Escuchar. Después resolverlo.",
+        "Luego: “Si él está de acuerdo con ese punto, ¿por tu parte sí te gustaría trabajar con nosotros?”"
+      ] }
+    ],
+    especiales: [
+      { titulo: "Si responde sí", lineas: ["“Perfecto. Entonces ya sé qué necesito dejarte claro para que lo revisen.”"] },
+      { titulo: "Cierre", lineas: ["“¿Podemos verlo juntos con él para resolver cualquier duda de una vez?”"] }
+    ]
+  },
+  {
+    id: 13, emoji: "💳", corta: "Quiere mejor crédito",
+    titulo: "“QUIERO MEJOR CONDICIÓN DE CRÉDITO”",
+    significa: ["El cliente tiene interés, pero quiere financiar parte de la operación."],
+    objetivo: ["No convertir el crédito en la única razón para comprar. Primero confirmar que realmente existe una operación."],
+    pasos: [
+      { titulo: "Qué decir", lineas: [
+        "“Podemos revisar condiciones de pago, pero primero quiero tener claro el tamaño de la operación.”",
+        "“Si conseguimos una condición que te funcione, ¿de cuánto sería el pedido?”",
+        "Esperar respuesta.",
+        "Después: “Si logramos esa condición, ¿cerramos esa operación?”"
+      ] }
+    ],
+    evitar: ["No prometer plazos que todavía no han sido autorizados."]
+  },
+  {
+    id: 14, emoji: "🔒", corta: "Quiere exclusividad",
+    titulo: "“QUIERO EXCLUSIVIDAD”",
+    significa: ["El cliente ve potencial en la marca, pero quiere proteger su inversión. Es una buena señal."],
+    objetivo: ["Utilizar la exclusividad como herramienta comercial, no regalarla sin compromiso."],
+    pasos: [
+      { titulo: "Qué decir", lineas: [
+        "“Justamente nosotros cuidamos mucho ese punto.”",
+        "“No buscamos meter la marca en todas las tiendas.”",
+        "“Pero la exclusividad también tiene que ir acompañada de movimiento y compromiso de ambas partes.”",
+        "Después: “Si nosotros te cuidamos la zona, ¿qué volumen consideras que puedes desarrollar mensualmente?”",
+        "Esperar respuesta."
+      ] }
+    ],
+    especiales: [
+      { titulo: "Cierre", lineas: ["“Si llegamos a un acuerdo de volumen y nosotros respetamos la zona, ¿estarías dispuesto a desarrollar GS POWER como una de tus marcas principales?”"] }
+    ]
+  },
+  {
+    id: 15, emoji: "📉", corta: "Otro da más descuento",
+    titulo: "“OTRO PROVEEDOR ME DA MÁS DESCUENTO”",
+    significa: ["El cliente intenta llevar la negociación únicamente hacia el porcentaje de descuento."],
+    objetivo: ["Cambiar el análisis de descuento a utilidad real y servicio."],
+    pasos: [
+      { titulo: "Qué decir", lineas: [
+        "“Puede ser.”",
+        "“Pero el descuento por sí solo no dice cuánto ganas.”",
+        "“Lo que importa es el costo al que compras, el precio al que puedes vender, la rotación y qué pasa cuando tienes una garantía.”",
+        "Después: “Puedes tener un descuento mayor y terminar ganando menos o teniendo más problemas.”"
+      ] }
+    ],
+    especiales: [
+      { titulo: "Cierre", lineas: ["“Si con nosotros tienes buen margen, respaldo y menos problemas después de la venta, ¿seguiría siendo determinante que otro proveedor te dé algunos puntos más de descuento?”"] }
+    ]
+  }
+];
+
+const REGLAS_GENERALES = [
+  { titulo: "1. Nunca atacar al proveedor actual", texto: ["El objetivo no es demostrar que el cliente tomó una mala decisión anteriormente. El objetivo es demostrar que vale la pena abrirle espacio a ROGODI."] },
+  { titulo: "2. No regalar descuento para resolver cualquier objeción", texto: ["Primero identificar el problema. Muchas objeciones no tienen relación con el precio."] },
+  { titulo: "3. Preguntar antes de responder", texto: ["Una buena pregunta puede descubrir la verdadera objeción."] },
+  { titulo: "4. Convertir las objeciones en condiciones", texto: ["Ejemplo — Cliente: “Está caro.” Vendedor: “Si el margen te funciona y nosotros te damos el respaldo que necesitas, ¿sí estarías dispuesto a empezar?”"] },
+  { titulo: "5. Después de resolver una objeción, volver a cerrar", texto: ["Nunca terminar la explicación sin pedir un siguiente paso."] },
+  { titulo: "6. El vendedor no vende solamente GS POWER", texto: ["Vende: ROGODI + GS POWER + servicio + respaldo + rentabilidad + atención."] },
+  { titulo: "7. Frase central de la capacitación", texto: ["“No solamente importa quién te vende; importa quién te responde después de venderte.”"] },
+  { titulo: "8. Posicionamiento que debe transmitir el vendedor", texto: ["ROGODI / GS POWER no busca ser simplemente otro proveedor. Busca ser una empresa que participa activamente en el crecimiento del cliente, lo atiende, lo respalda y desarrolla una relación comercial de largo plazo."] }
+];
+
+function objeccionMenuHtml() {
+  return `
+    <div class="obj-menu-intro">Selecciona la objeción que te acaba de dar el cliente. Vas a ver cómo interpretarla, qué decirle exactamente y a qué pregunta de cierre volver.</div>
+    <div class="obj-menu-grid">
+      ${OBJECIONES.map(o => `
+        <button class="tile-categoria" data-obj="${o.id}">
+          <div class="icono">${o.emoji}</div>
+          <div class="nombre">${escapeHtml(o.corta)}</div>
+        </button>`).join("")}
+      <button class="tile-categoria" data-obj="reglas">
+        <div class="icono">📖</div>
+        <div class="nombre">Reglas generales</div>
+      </button>
+    </div>`;
+}
+
+function objBloqueHtml(titulo, parrafos) {
+  return `<div class="obj-bloque"><h4>${escapeHtml(titulo)}</h4>${parrafos.map(p => `<p>${escapeHtml(p)}</p>`).join("")}</div>`;
+}
+
+function objPasosHtml(pasos) {
+  return `<div class="obj-bloque"><h4>Qué decir</h4>
+    ${pasos.map(ps => `<div class="obj-paso"><div class="paso-nombre">${escapeHtml(ps.titulo)}</div>${ps.lineas.map(l => `<p>${escapeHtml(l)}</p>`).join("")}</div>`).join("")}
+  </div>`;
+}
+
+function objEspecialesHtml(especiales) {
+  if (!especiales || !especiales.length) return "";
+  return especiales.map(e => `<div class="obj-especial"><div class="especial-nombre">${escapeHtml(e.titulo)}</div>${e.lineas.map(l => `<p>${escapeHtml(l)}</p>`).join("")}</div>`).join("");
+}
+
+function objEnlacesHtml(enlaces) {
+  if (!enlaces || !enlaces.length) return "";
+  return `<div class="obj-bloque"><h4>Depende de lo que diga</h4>
+    ${enlaces.map(en => `<button class="obj-enlace" data-obj="${en.id}">${escapeHtml(en.texto)}</button>`).join("")}
+  </div>`;
+}
+
+function objEvitarHtml(evitar) {
+  if (!evitar || !evitar.length) return "";
+  return `<div class="obj-evitar"><h4>Qué evitar</h4>${evitar.map(l => `<p>${escapeHtml(l)}</p>`).join("")}</div>`;
+}
+
+function objOtrasHtml(idActual) {
+  const otras = OBJECIONES.filter(o => o.id !== idActual);
+  return `<div class="obj-otras">
+    <h4>¿Salió con otra objeción? Toca para ver la respuesta</h4>
+    <div class="obj-chips">
+      ${otras.map(o => `<button class="chip-obj" data-obj="${o.id}">${escapeHtml(o.corta)}</button>`).join("")}
+    </div>
+  </div>`;
+}
+
+function objeccionDetalleHtml(o) {
+  let html = `<button class="btn-regresar" id="btnMenuObjeciones">← Menú de objeciones</button>`;
+  html += `<div class="obj-numero">OBJECIÓN ${o.id}</div>`;
+  html += `<div class="obj-titulo-frase">${escapeHtml(o.titulo)}</div>`;
+  if (o.significa) html += objBloqueHtml("Qué significa realmente", o.significa);
+  if (o.objetivo) html += objBloqueHtml("Objetivo del vendedor", o.objetivo);
+  if (o.pasos) html += objPasosHtml(o.pasos);
+  if (o.enlaces) html += objEnlacesHtml(o.enlaces);
+  html += objEspecialesHtml(o.especiales);
+  html += objEvitarHtml(o.evitar);
+  html += objOtrasHtml(o.id);
+  return html;
+}
+
+function objReglasHtml() {
+  let html = `<button class="btn-regresar" id="btnMenuObjeciones">← Menú de objeciones</button>`;
+  html += `<div class="obj-titulo-frase">📖 Reglas generales para el vendedor</div>`;
+  REGLAS_GENERALES.forEach(r => { html += objBloqueHtml(r.titulo, r.texto); });
+  return html;
+}
+
+const modalObjeciones = document.getElementById("modalObjeciones");
+const contenidoObjeciones = document.getElementById("contenidoObjeciones");
+
+document.getElementById("btnObjeciones").addEventListener("click", () => {
+  contenidoObjeciones.innerHTML = objeccionMenuHtml();
+  modalObjeciones.style.display = "flex";
+});
+document.getElementById("btnCerrarObjeciones").addEventListener("click", () => { modalObjeciones.style.display = "none"; });
+modalObjeciones.addEventListener("click", (e) => { if (e.target === modalObjeciones) modalObjeciones.style.display = "none"; });
+
+contenidoObjeciones.addEventListener("click", (e) => {
+  if (e.target.closest("#btnMenuObjeciones")) {
+    contenidoObjeciones.innerHTML = objeccionMenuHtml();
+    contenidoObjeciones.scrollTop = 0;
+    return;
+  }
+  const btnObj = e.target.closest("[data-obj]");
+  if (btnObj) {
+    const id = btnObj.dataset.obj;
+    contenidoObjeciones.innerHTML = id === "reglas"
+      ? objReglasHtml()
+      : objeccionDetalleHtml(OBJECIONES.find(o => String(o.id) === id));
+    contenidoObjeciones.scrollTop = 0;
+  }
+});
 </script>
 </body>
 </html>
