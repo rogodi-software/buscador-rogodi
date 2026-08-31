@@ -153,6 +153,27 @@ def guardar_productos(conn: sqlite3.Connection, productos: list[dict], id_tipo, 
     conn.commit()
 
 
+def marcar_no_vistos_sin_existencia(conn: sqlite3.Connection, vistos: set[int]) -> int:
+    """Un producto que ya no aparece en ningun tipo/grupo del sitio ya no se
+    esta vendiendo ahi, aunque su fila en catalogo.db conserve la ultima
+    existencia positiva que tuvo hace semanas o meses. Sin esto, el buscador
+    y el Excel de existencias siguen ofreciendo stock fantasma de productos
+    que el sitio dejo de listar."""
+    conn.execute("CREATE TEMP TABLE vistos_actual (id_articulo INTEGER PRIMARY KEY)")
+    conn.executemany(
+        "INSERT INTO vistos_actual (id_articulo) VALUES (?)", [(i,) for i in vistos]
+    )
+    cur = conn.execute(
+        """
+        UPDATE productos SET existencia = 0
+        WHERE existencia != 0
+          AND id_articulo NOT IN (SELECT id_articulo FROM vistos_actual)
+        """
+    )
+    conn.commit()
+    return cur.rowcount
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--tipo", type=int, default=None, help="Limitar a un solo id_articulotipo (prueba)")
@@ -171,6 +192,7 @@ def main():
     print(f"{len(tipos)} tipo(s) a procesar.")
 
     total_productos = 0
+    vistos: set[int] = set()
     for id_tipo, tipo_nombre in tipos:
         print(f"\n[TIPO {id_tipo}] {tipo_nombre}")
         grupos = listar_grupos(id_tipo)
@@ -180,10 +202,16 @@ def main():
         for id_grupo, grupo_nombre in grupos:
             productos = listar_productos(id_tipo, id_grupo)
             guardar_productos(conn, productos, id_tipo, tipo_nombre, id_grupo, grupo_nombre)
+            vistos.update(p["id_articulo"] for p in productos)
             total_productos += len(productos)
             print(f"  grupo {id_grupo} ({grupo_nombre}): {len(productos)} productos")
 
     print(f"\nListo. Productos guardados/actualizados en esta corrida: {total_productos}")
+    if args.tipo is None:
+        # Solo al recorrer el catalogo completo se puede confiar en que
+        # "vistos" representa todo lo que el sitio tiene listado hoy.
+        apagados = marcar_no_vistos_sin_existencia(conn, vistos)
+        print(f"Productos ya no listados en el sitio, existencia puesta en 0: {apagados}")
     print(f"Base de datos: {DB_PATH}")
     conn.close()
 
