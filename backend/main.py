@@ -1,6 +1,8 @@
+from datetime import datetime
 from pathlib import Path
 
 from fastapi import FastAPI, Request
+from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
 
 try:
@@ -10,6 +12,7 @@ try:
         TEMPORADAS, _buscar_definicion_categoria, alternativas, buscar, cargar_productos,
         categorias_de_temporada, productos_de_categoria,
     )
+    from catalogo_excel import generar_excel_bytes
 except ImportError:
     # Vercel ejecuta el proyecto desde la raiz (backend.main:app), asi que
     # busqueda.py solo es visible como parte del paquete backend.
@@ -17,6 +20,7 @@ except ImportError:
         TEMPORADAS, _buscar_definicion_categoria, alternativas, buscar, cargar_productos,
         categorias_de_temporada, productos_de_categoria,
     )
+    from backend.catalogo_excel import generar_excel_bytes
 
 app = FastAPI(title="Buscador ROGODI")
 
@@ -104,6 +108,21 @@ def api_temporada_categoria(clave: str, slug: str):
         "total": len(salida),
         "resultados": salida,
     }
+
+
+@app.get("/api/catalogo-excel")
+def api_catalogo_excel():
+    """Excel de existencias para la app de catalogos de la disenadora
+    (My Business Catalogue): mismo formato que ROGODI_AGOSTO2026.xls, pero
+    precio/existencia/descripcion siempre en vivo desde catalogo.db, y solo
+    productos con mas de 3 piezas de existencia."""
+    contenido = generar_excel_bytes(PRODUCTOS, min_existencia=3)
+    nombre = f"ROGODI_{datetime.now().strftime('%d%b%Y').upper()}.xls"
+    return Response(
+        content=contenido,
+        media_type="application/vnd.ms-excel",
+        headers={"Content-Disposition": f'attachment; filename="{nombre}"'},
+    )
 
 
 @app.middleware("http")
