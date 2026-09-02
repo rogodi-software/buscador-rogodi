@@ -54,7 +54,7 @@ def _escribir_fila(hoja, fila: int, valores: list, estilo=None) -> None:
 def generar_excel_bytes(productos: list[dict], min_existencia: float = 3) -> bytes:
     """Arma el .xls agrupado TIPO -> GRUPO -> productos, solo con productos
     cuya existencia actual (en vivo) sea mayor a min_existencia."""
-    calificados = [p for p in productos if (p.get("existencia") or 0) > min_existencia]
+    calificados = [p for p in productos if (p.get("existencia") or 0) >= min_existencia]
 
     por_tipo: dict[str, dict[str, list[dict]]] = {}
     for p in calificados:
