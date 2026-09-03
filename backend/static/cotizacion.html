@@ -111,6 +111,9 @@
 
   .aviso-vacio { padding: 40px; text-align: center; font-family: Arial, sans-serif; color: #666; }
 
+  /* usado solo mientras se captura cada pagina para el PDF: sin sombra */
+  .pagina.capturando { box-shadow: none; margin: 0; }
+
   @media print {
     body { background: #fff; }
     .barra { display: none !important; }
@@ -124,13 +127,15 @@
     @page { size: letter portrait; margin: 12mm; }
   }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 <div class="barra no-imprimir" id="barra">
-  <span>Vista previa de la cotización — revisa antes de imprimir.</span>
+  <span id="textoBarra">Vista previa de la cotización.</span>
   <div>
     <button class="secundario" onclick="window.close()">Cerrar</button>
-    <button onclick="window.print()">Guardar como PDF</button>
+    <button id="btnGuardarPDF">Guardar como PDF</button>
   </div>
 </div>
 <div id="contenedorPaginas"></div>
@@ -208,9 +213,57 @@ try { datos = JSON.parse(sessionStorage.getItem("rogodi_cotizacion_pdf") || "nul
 const cont = document.getElementById("contenedorPaginas");
 if (!datos || !datos.items || !datos.items.length) {
   cont.innerHTML = `<div class="aviso-vacio">No hay datos de cotización para mostrar.<br>Cierra esta pestaña y genera el PDF desde el carrito del buscador.</div>`;
+  document.getElementById("btnGuardarPDF").style.display = "none";
 } else {
   construirPaginas(datos);
 }
+
+// ---------- descarga directa del PDF (sin dialogo de impresion) ----------
+
+function esperarImagenes(el) {
+  const imgs = Array.from(el.querySelectorAll("img"));
+  return Promise.all(imgs.map(img => {
+    if (img.complete) return Promise.resolve();
+    return new Promise(res => { img.onload = res; img.onerror = res; });
+  }));
+}
+
+async function descargarPDF() {
+  const paginas = Array.from(document.querySelectorAll(".pagina"));
+  if (!paginas.length) return;
+  const boton = document.getElementById("btnGuardarPDF");
+  const barra = document.getElementById("textoBarra");
+  const textoOriginal = boton.textContent;
+  boton.textContent = "Generando…";
+  boton.disabled = true;
+  try {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: "mm", format: "letter", orientation: "portrait" });
+    for (let i = 0; i < paginas.length; i++) {
+      const el = paginas[i];
+      barra.textContent = `Generando PDF… página ${i + 1} de ${paginas.length}`;
+      await esperarImagenes(el);
+      el.classList.add("capturando");
+      const canvas = await html2canvas(el, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
+      el.classList.remove("capturando");
+      const imagen = canvas.toDataURL("image/jpeg", 0.95);
+      if (i > 0) doc.addPage("letter", "portrait");
+      doc.addImage(imagen, "JPEG", 0, 0, 215.9, 279.4);
+    }
+    const nombreCliente = (datos.cliente || "cotizacion").trim().replace(/[^a-zA-Z0-9]+/g, "_") || "cotizacion";
+    doc.save(`Cotizacion_ROGODI_${nombreCliente}.pdf`);
+    barra.textContent = "PDF descargado.";
+  } catch (e) {
+    console.error(e);
+    alert('No se pudo generar el PDF automáticamente. Usa Ctrl+P y elige "Guardar como PDF" como alternativa.');
+    barra.textContent = "Vista previa de la cotización.";
+  } finally {
+    boton.textContent = textoOriginal;
+    boton.disabled = false;
+  }
+}
+
+document.getElementById("btnGuardarPDF").addEventListener("click", descargarPDF);
 
 function construirPaginas(d) {
   const fecha = new Date(d.fechaISO);
@@ -257,8 +310,9 @@ function construirPaginas(d) {
 }
 
 function filaProducto(it, numero, descuentoPct) {
-  const foto = it.foto_url
-    ? `<img class="foto-prod" src="${escapeHtml(it.foto_url)}" onerror="this.outerHTML='<div class=&quot;foto-vacia&quot;>Sin foto</div>'">`
+  const fotoSrc = it.foto_url ? `${location.origin}/api/foto?url=${encodeURIComponent(it.foto_url)}` : null;
+  const foto = fotoSrc
+    ? `<img class="foto-prod" src="${escapeHtml(fotoSrc)}" onerror="this.outerHTML='<div class=&quot;foto-vacia&quot;>Sin foto</div>'">`
     : `<div class="foto-vacia">Sin foto</div>`;
   let inv;
   if (it.existencia === null || it.existencia === undefined) {

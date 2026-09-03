@@ -1,6 +1,8 @@
 from datetime import datetime
 from pathlib import Path
+from urllib.parse import urlparse
 
+import requests
 from fastapi import FastAPI, Request
 from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
@@ -122,6 +124,28 @@ def api_productos(ids: str = ""):
         return {"resultados": []}
     por_id = {p["id_articulo"]: p for p in PRODUCTOS}
     return {"resultados": [_producto_publico(por_id[i]) for i in buscados if i in por_id]}
+
+
+@app.get("/api/foto")
+def api_foto(url: str):
+    """Reenvia una foto de producto de rogodi.mx bajo nuestro propio dominio.
+    El PDF de cotizacion se genera en el navegador dibujando cada foto en un
+    canvas; una imagen cargada directo desde otro dominio queda "contaminada"
+    y el navegador se niega a exportar el canvas a PDF. Sirviendola desde
+    aqui la vuelve del mismo origen que la pagina."""
+    host = (urlparse(url).hostname or "")
+    if not host.endswith("rogodi.mx"):
+        return Response(status_code=400)
+    try:
+        resp = requests.get(url, timeout=8)
+        resp.raise_for_status()
+    except requests.RequestException:
+        return Response(status_code=502)
+    return Response(
+        content=resp.content,
+        media_type=resp.headers.get("Content-Type", "image/jpeg"),
+        headers={"Cache-Control": "public, max-age=3600"},
+    )
 
 
 @app.get("/api/catalogo-excel")
