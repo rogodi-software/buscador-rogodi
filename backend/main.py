@@ -110,6 +110,20 @@ def api_temporada_categoria(clave: str, slug: str):
     }
 
 
+@app.get("/api/productos")
+def api_productos(ids: str = ""):
+    """Datos frescos (precio/existencia en vivo) para una lista de
+    id_articulo, usados al generar el PDF de cotizacion: el carrito vive en
+    localStorage y puede tener dias de antiguedad, pero el PDF debe reflejar
+    lo mismo que el buscador muestra en este momento."""
+    try:
+        buscados = {int(x) for x in ids.split(",") if x.strip()}
+    except ValueError:
+        return {"resultados": []}
+    por_id = {p["id_articulo"]: p for p in PRODUCTOS}
+    return {"resultados": [_producto_publico(por_id[i]) for i in buscados if i in por_id]}
+
+
 @app.get("/api/catalogo-excel")
 def api_catalogo_excel():
     """Excel de existencias para la app de catalogos de la disenadora

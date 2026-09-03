@@ -227,6 +227,17 @@
   }
   .btn-secundario { background: none; border: 1px solid #2a3654; color: #c5cde0; }
   .btn-primario { background: var(--ambar); border: none; color: #0a0e1a; }
+  .btn-pdf { background: #d81f26; color: #fff; flex: 0 0 auto; padding: 12px 14px; }
+
+  .modal-datos-pdf { max-width: 420px; }
+  .campo-pdf { margin-bottom: 14px; }
+  .campo-pdf label { display: block; font-size: 12.5px; color: var(--gris); margin-bottom: 5px; font-weight: 600; }
+  .campo-pdf input {
+    width: 100%; padding: 11px 12px; border-radius: 10px; border: 1px solid #2a3654;
+    background: #0e1424; color: #fff; font-size: 14px;
+  }
+  .campo-pdf-nota { font-size: 12px; color: var(--gris); margin-bottom: 16px; }
+  .btn-generar-pdf { width: 100%; background: #d81f26; color: #fff; border: none; }
 
   .toast {
     position: fixed; left: 50%; bottom: 90px; transform: translateX(-50%) translateY(20px);
@@ -350,9 +361,29 @@
       <div class="carrito-total-row"><span>Total</span><span id="totalCarrito">$0.00</span></div>
       <div class="carrito-acciones">
         <button id="btnVaciarCarrito" class="btn-secundario">Vaciar carrito</button>
-        <button id="btnCopiarCotizacion" class="btn-primario">📋 Copiar para WhatsApp</button>
+        <button id="btnCopiarCotizacion" class="btn-primario">📋 WhatsApp</button>
+        <button id="btnAbrirPDF" class="btn-primario btn-pdf">🧾 PDF</button>
       </div>
     </div>
+  </div>
+</div>
+
+<div id="modalDatosPDF" class="modal-overlay" style="display:none">
+  <div class="modal-carrito modal-datos-pdf">
+    <div class="modal-header">
+      <div class="modal-titulo">🧾 Datos de la cotización</div>
+      <button id="btnCerrarDatosPDF" class="btn-cerrar-modal" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="campo-pdf">
+      <label for="campoClientePDF">Cliente</label>
+      <input type="text" id="campoClientePDF" placeholder="Nombre del cliente" autocomplete="off">
+    </div>
+    <div class="campo-pdf">
+      <label for="campoAgentePDF">Agente</label>
+      <input type="text" id="campoAgentePDF" placeholder="Nombre del vendedor" autocomplete="off">
+    </div>
+    <div class="campo-pdf-nota">La cotización queda vigente 24 horas a partir de ahora.</div>
+    <button id="btnGenerarPDF" class="btn-primario btn-generar-pdf">Generar PDF</button>
   </div>
 </div>
 
@@ -881,6 +912,65 @@ document.getElementById("btnVaciarCarrito").addEventListener("click", () => {
 document.getElementById("btnCopiarCotizacion").addEventListener("click", () => {
   if (!carrito.length) { mostrarToast("El carrito está vacío"); return; }
   copiarTexto(textoCotizacion());
+});
+
+// ---------- PDF de cotización ----------
+
+const modalDatosPDF = document.getElementById("modalDatosPDF");
+document.getElementById("btnAbrirPDF").addEventListener("click", () => {
+  if (!carrito.length) { mostrarToast("El carrito está vacío"); return; }
+  modalDatosPDF.style.display = "flex";
+  document.getElementById("campoClientePDF").focus();
+});
+document.getElementById("btnCerrarDatosPDF").addEventListener("click", () => { modalDatosPDF.style.display = "none"; });
+modalDatosPDF.addEventListener("click", (e) => { if (e.target === modalDatosPDF) modalDatosPDF.style.display = "none"; });
+
+document.getElementById("btnGenerarPDF").addEventListener("click", async () => {
+  const cliente = document.getElementById("campoClientePDF").value.trim();
+  const agente = document.getElementById("campoAgentePDF").value.trim();
+  const boton = document.getElementById("btnGenerarPDF");
+  const textoOriginal = boton.textContent;
+  boton.textContent = "Preparando…";
+  boton.disabled = true;
+  try {
+    const ids = carrito.map(it => it.id_articulo).join(",");
+    let frescos = new Map();
+    try {
+      const resp = await fetch(`/api/productos?ids=${ids}`);
+      const datos = await resp.json();
+      (datos.resultados || []).forEach(p => frescos.set(p.id_articulo, p));
+    } catch (e) { /* si falla, se usan los datos que ya tiene el carrito */ }
+
+    const items = carrito.map(it => {
+      const f = frescos.get(it.id_articulo) || {};
+      const precioBase = f.precio ?? it.precio;
+      const unit = precioConDescuento(precioBase);
+      return {
+        codigo: it.codigo,
+        descripcion: f.descripcion || it.descripcion,
+        existencia: f.existencia ?? null,
+        foto_url: f.foto_url || null,
+        cantidad: it.cantidad,
+        precioUnit: unit,
+        subtotal: unit * it.cantidad,
+      };
+    });
+
+    const payload = {
+      cliente, agente,
+      descuentoPct,
+      fechaISO: new Date().toISOString(),
+      items,
+      subtotal: items.reduce((s, it) => s + it.precioUnit * it.cantidad / (descuentoPct > 0 ? (1 - descuentoPct / 100) : 1), 0),
+      total: items.reduce((s, it) => s + it.subtotal, 0),
+    };
+    sessionStorage.setItem("rogodi_cotizacion_pdf", JSON.stringify(payload));
+    window.open("/cotizacion.html", "_blank");
+    modalDatosPDF.style.display = "none";
+  } finally {
+    boton.textContent = textoOriginal;
+    boton.disabled = false;
+  }
 });
 
 actualizarBadgeCarrito();
