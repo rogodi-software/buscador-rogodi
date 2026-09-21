@@ -25,6 +25,13 @@
   .titulo span { color: var(--ambar); }
   .subtitulo { font-size: 12px; color: var(--gris); margin-top: 3px; }
 
+  .btn-cambiar-modo {
+    flex-shrink: 0; background: #fff; border: 2px solid #2a3654; border-radius: 10px;
+    padding: 6px 8px; cursor: pointer; display: flex; align-items: center;
+  }
+  .btn-cambiar-modo img { height: 26px; display: block; }
+  .btn-cambiar-modo:hover { border-color: var(--cian); }
+
   .buscador { position: relative; margin-top: 18px; }
   .buscador svg.icono-buscar { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--gris); }
   .buscador input {
@@ -54,13 +61,6 @@
     background: #0e1424; color: #fff; font-size: 14px; text-align: center;
   }
   .descuento .quitar { background: none; border: none; color: var(--gris); font-size: 12px; cursor: pointer; text-decoration: underline; margin-left: auto; }
-
-  .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; align-items: center; }
-  .chips span.etq { font-size: 12px; color: var(--gris); }
-  .chip {
-    background: #141d33; border: 1px solid #2a3654; color: #c5cde0; padding: 6px 12px;
-    border-radius: 20px; font-size: 12.5px; cursor: pointer;
-  }
 
   .temporadas { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
   .chip-temporada {
@@ -254,12 +254,24 @@
     justify-content: center; z-index: 70;
   }
 
+  .fab-excel-wrap { position: fixed; left: 16px; bottom: 86px; z-index: 70; }
   .fab-excel {
-    position: fixed; left: 16px; bottom: 86px; width: 56px; height: 56px; border-radius: 50%;
-    background: #1d6f42; border: none; cursor: pointer; text-decoration: none;
+    width: 56px; height: 56px; border-radius: 50%;
+    background: #1d6f42; border: none; cursor: pointer;
     box-shadow: 0 6px 20px rgba(29,111,66,.5); display: flex; align-items: center;
-    justify-content: center; z-index: 70;
+    justify-content: center;
   }
+  .menu-excel {
+    display: none; flex-direction: column; gap: 4px; position: absolute; left: 0; bottom: 66px;
+    background: #101a2e; border: 1px solid #2a3654; border-radius: 12px; padding: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.4); min-width: 160px;
+  }
+  .menu-excel.abierto { display: flex; }
+  .menu-excel-opcion {
+    display: block; padding: 9px 12px; border-radius: 8px; font-size: 13.5px; font-weight: 700;
+    color: #dde3f0; text-decoration: none; white-space: nowrap;
+  }
+  .menu-excel-opcion:hover { background: #1c2740; }
   .modal-objeciones { max-height: 92vh; }
   .obj-detalle { overflow-y: auto; flex: 1; min-height: 0; }
   .obj-menu-intro { font-size: 12.5px; color: var(--gris); line-height: 1.5; margin-bottom: 14px; }
@@ -307,10 +319,13 @@
     <div class="logo">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0a0e1a" stroke-width="2.5"><path d="M13 2 3 14h7l-1 8 11-12h-7l1-8z" fill="#0a0e1a"/></svg>
     </div>
-    <div>
-      <div class="titulo">Buscador ROGODI <span>Pro</span></div>
-      <div class="subtitulo">Encuentra el producto correcto en segundos — y qué ofrecer cuando no hay stock.</div>
+    <div style="flex:1">
+      <div class="titulo" id="tituloBuscador">Buscador ROGODI <span>Pro</span></div>
+      <div class="subtitulo" id="subtituloBuscador">Encuentra el producto correcto en segundos — y qué ofrecer cuando no hay stock.</div>
     </div>
+    <button id="btnCambiarModo" class="btn-cambiar-modo" title="Cambiar a catálogo de Autozeichen">
+      <img src="/autozeichen-logo.jpg" alt="Autozeichen">
+    </button>
   </div>
 
   <div class="buscador">
@@ -329,11 +344,8 @@
     <button class="quitar" id="btnQuitarDescuento">Quitar descuento</button>
   </div>
 
-  <div class="chips" id="chipsEjemplo">
-    <span class="etq">Prueba:</span>
-  </div>
-
   <div class="temporadas" id="temporadas"></div>
+  <div class="temporadas" id="tiposAutozeichen" style="display:none"></div>
   <div id="bannerTemporada"></div>
   <div id="vistaTemporada"></div>
 
@@ -389,14 +401,20 @@
 
 <button id="btnObjeciones" class="fab-objeciones" aria-label="Guía de objeciones">🎯</button>
 
-<a id="btnExcel" class="fab-excel" href="/api/catalogo-excel" download aria-label="Descargar Excel de existencias" title="Descargar Excel de existencias">
-  <svg width="28" height="28" viewBox="0 0 24 24">
-    <rect x="2" y="2" width="20" height="20" rx="3" fill="#fff"/>
-    <rect x="2" y="2" width="20" height="20" rx="3" fill="#1d6f42"/>
-    <rect x="4" y="4" width="16" height="16" rx="1.5" fill="#fff"/>
-    <path d="M8 8l3 4-3 4h2l2-2.7L14 16h2l-3-4 3-4h-2l-2 2.7L10 8H8z" fill="#1d6f42"/>
-  </svg>
-</a>
+<div class="fab-excel-wrap">
+  <div id="menuExcel" class="menu-excel">
+    <a class="menu-excel-opcion" href="/api/catalogo-excel" download>📗 Rogodi</a>
+    <a class="menu-excel-opcion" href="/api/catalogo-excel-autozeichen" download>📘 Autozeichen</a>
+  </div>
+  <button id="btnExcel" class="fab-excel" aria-label="Descargar Excel de existencias" title="Descargar Excel de existencias">
+    <svg width="28" height="28" viewBox="0 0 24 24">
+      <rect x="2" y="2" width="20" height="20" rx="3" fill="#fff"/>
+      <rect x="2" y="2" width="20" height="20" rx="3" fill="#1d6f42"/>
+      <rect x="4" y="4" width="16" height="16" rx="1.5" fill="#fff"/>
+      <path d="M8 8l3 4-3 4h2l2-2.7L14 16h2l-3-4 3-4h-2l-2 2.7L10 8H8z" fill="#1d6f42"/>
+    </svg>
+  </button>
+</div>
 
 <div id="modalObjeciones" class="modal-overlay" style="display:none">
   <div class="modal-carrito modal-objeciones">
@@ -409,8 +427,7 @@
 </div>
 
 <script>
-const API = "/api/buscar?q=";
-const EJEMPLOS = ["H4", "foco H11 spyder", "9007 led", "limpiaparabrisas", "cambus", "124-0400-01"];
+let API = "/api/buscar?q=";
 
 let descuentoPct = 0;
 let ultimasSecciones = [];
@@ -418,7 +435,9 @@ let productosCategoriaActual = [];
 let temporizador = null;
 let temporadaActiva = null;
 const mapaProductos = new Map();
-const CARRITO_KEY = "rogodi_carrito_v1";
+const CARRITO_KEY_ROGODI = "rogodi_carrito_v1";
+const CARRITO_KEY_AUTOZEICHEN = "autozeichen_carrito_v1";
+let CARRITO_KEY = CARRITO_KEY_ROGODI;
 let carrito = cargarCarrito();
 
 const campo = document.getElementById("campoBusqueda");
@@ -426,7 +445,6 @@ const btnLimpiar = document.getElementById("btnLimpiar");
 const divResultados = document.getElementById("resultados");
 const divContador = document.getElementById("contador");
 const divAviso = document.getElementById("aviso");
-const divChips = document.getElementById("chipsEjemplo");
 const divTemporadas = document.getElementById("temporadas");
 const divBannerTemporada = document.getElementById("bannerTemporada");
 const divVistaTemporada = document.getElementById("vistaTemporada");
@@ -434,13 +452,6 @@ let temporadaMetaActual = null;
 let categoriaActivaFamilia = null;
 let categoriasCache = [];
 const campoDescuentoCustom = document.getElementById("campoDescuentoCustom");
-
-EJEMPLOS.forEach(ej => {
-  const b = document.createElement("button");
-  b.className = "chip"; b.textContent = ej;
-  b.onclick = () => { campo.value = ej; buscar(); };
-  divChips.appendChild(b);
-});
 
 async function cargarTemporadas() {
   try {
@@ -457,6 +468,165 @@ async function cargarTemporadas() {
   } catch (e) { /* sin temporadas si no hay conexion */ }
 }
 cargarTemporadas();
+
+// ---------- modo Autozeichen (mismo buscador, catalogo de emblemas) ----------
+let modoAutozeichen = false;
+let azTipos = [];
+let azTipoActivo = null;
+let azMarcaActiva = null;
+let azMarcasCache = [];
+let productosAzActual = [];
+const divTiposAutozeichen = document.getElementById("tiposAutozeichen");
+const btnCambiarModo = document.getElementById("btnCambiarModo");
+
+async function cargarTiposAutozeichen() {
+  try {
+    const r = await fetch("/api/autozeichen/tipos");
+    azTipos = await r.json();
+  } catch (e) { azTipos = []; }
+  divTiposAutozeichen.innerHTML = azTipos.map(t =>
+    `<button class="chip-temporada" data-id="${t.id}">${escapeHtml(t.nombre)}</button>`).join("");
+  divTiposAutozeichen.querySelectorAll("button").forEach(b => {
+    b.onclick = () => toggleAzTipo(azTipos.find(t => String(t.id) === b.dataset.id));
+  });
+}
+cargarTiposAutozeichen();
+
+function resetEstadoAutozeichenNav() {
+  azTipoActivo = null;
+  azMarcaActiva = null;
+  azMarcasCache = [];
+  productosAzActual = [];
+  divTiposAutozeichen.querySelectorAll(".chip-temporada").forEach(b => b.classList.remove("activo"));
+  divBannerTemporada.innerHTML = "";
+  divVistaTemporada.innerHTML = "";
+}
+
+function desactivarAzTipo() {
+  resetEstadoAutozeichenNav();
+  ultimasSecciones = [];
+  renderResultados();
+}
+
+function bannerAzHtml(nombre) {
+  return `<div class="banner-temporada">
+    <div class="emoji">🚘</div>
+    <div><div class="nombre">${escapeHtml(nombre)}</div><div class="meses">Autozeichen</div></div>
+  </div>`;
+}
+
+async function toggleAzTipo(tipo) {
+  if (!tipo) return;
+  const yaActiva = azTipoActivo && azTipoActivo.id === tipo.id;
+  if (yaActiva) { desactivarAzTipo(); return; }
+  divTiposAutozeichen.querySelectorAll(".chip-temporada").forEach(b => b.classList.remove("activo"));
+  divTiposAutozeichen.querySelector(`[data-id="${tipo.id}"]`).classList.add("activo");
+  azTipoActivo = tipo;
+  azMarcaActiva = null;
+  campo.value = "";
+  btnLimpiar.style.display = "none";
+  divAviso.style.display = "none";
+  divBannerTemporada.innerHTML = bannerAzHtml(tipo.nombre);
+  divVistaTemporada.innerHTML = `<div class="sin-resultados">Cargando marcas…</div>`;
+  try {
+    const r = await fetch(`/api/autozeichen/marcas?id_tipo=${tipo.id}`);
+    azMarcasCache = await r.json();
+  } catch (e) { azMarcasCache = []; }
+  mostrarMarcasGrid();
+}
+
+function mostrarMarcasGrid() {
+  divContador.style.display = "none";
+  divResultados.innerHTML = "";
+  if (!azMarcasCache.length) {
+    divVistaTemporada.innerHTML = `
+      <button class="btn-regresar" onclick="desactivarAzTipo()">← Regresar</button>
+      <div class="sin-resultados">No hay marcas para esta categoría.</div>`;
+    return;
+  }
+  divVistaTemporada.innerHTML = `
+    <button class="btn-regresar" id="btnRegresarAzNivel1">← Regresar</button>
+    <div class="grid-categorias">
+      ${azMarcasCache.map(m => `
+        <button class="tile-categoria" data-id="${m.id}">
+          <div class="icono">🚗</div>
+          <div class="nombre">${escapeHtml(m.nombre)}</div>
+        </button>`).join("")}
+    </div>`;
+  document.getElementById("btnRegresarAzNivel1").onclick = desactivarAzTipo;
+  divVistaTemporada.querySelectorAll(".tile-categoria").forEach(btn => {
+    btn.onclick = () => abrirAzMarca(azMarcasCache.find(m => String(m.id) === btn.dataset.id));
+  });
+}
+
+async function abrirAzMarca(marca) {
+  if (!marca) return;
+  azMarcaActiva = marca;
+  divBannerTemporada.innerHTML = bannerAzHtml(`${azTipoActivo.nombre} → ${marca.nombre}`);
+  divVistaTemporada.innerHTML = `<button class="btn-regresar" id="btnRegresarAzMarcas">← Regresar a marcas</button>`;
+  divContador.style.display = "block";
+  divContador.textContent = "Cargando…";
+  divResultados.innerHTML = "";
+  let productos = [];
+  try {
+    const r = await fetch(`/api/autozeichen/productos?id_tipo=${azTipoActivo.id}&id_grupo=${marca.id}`);
+    const data = await r.json();
+    productos = data.resultados || [];
+  } catch (e) { /* sin resultados si no hay conexion */ }
+  productosAzActual = productos;
+  document.getElementById("btnRegresarAzMarcas").onclick = () => {
+    azMarcaActiva = null;
+    productosAzActual = [];
+    divBannerTemporada.innerHTML = bannerAzHtml(azTipoActivo.nombre);
+    mostrarMarcasGrid();
+  };
+  divContador.textContent = productos.length
+    ? `Encontré ${productos.length} producto${productos.length === 1 ? "" : "s"}`
+    : "No hay productos en esta marca.";
+  divResultados.innerHTML = productos.map(tarjetaHtml).join("");
+}
+
+function activarModoAutozeichen() {
+  modoAutozeichen = true;
+  API = "/api/autozeichen/buscar?q=";
+  resetEstadoTemporada();
+  ultimasSecciones = [];
+  campo.value = ""; campo.placeholder = "Escribe código o palabra clave… ej: BMW, escudo, letrero";
+  btnLimpiar.style.display = "none";
+  document.getElementById("temporadas").style.display = "none";
+  divTiposAutozeichen.style.display = "flex";
+  document.getElementById("tituloBuscador").innerHTML = "Buscador Autozeichen";
+  document.getElementById("subtituloBuscador").textContent =
+    "Escudos, letreros, mirillas y placas — elige una categoría o busca por código/descripción.";
+  divAviso.innerHTML = `<b>Catálogo de Autozeichen.</b> Elige Escudos, Letreros, Mirillas o Placas arriba, o busca directo por código o palabra clave.`;
+  btnCambiarModo.querySelector("img").src = "/logo-rogodi.png";
+  btnCambiarModo.title = "Regresar al buscador de Rogodi";
+  cambiarCarritoActivo(CARRITO_KEY_AUTOZEICHEN);
+  renderResultados();
+}
+
+function activarModoRogodi() {
+  modoAutozeichen = false;
+  API = "/api/buscar?q=";
+  resetEstadoAutozeichenNav();
+  ultimasSecciones = [];
+  campo.value = ""; campo.placeholder = "Escribe código, medida o palabra clave… ej: H4 spyder";
+  btnLimpiar.style.display = "none";
+  document.getElementById("temporadas").style.display = "flex";
+  divTiposAutozeichen.style.display = "none";
+  document.getElementById("tituloBuscador").innerHTML = 'Buscador ROGODI <span>Pro</span>';
+  document.getElementById("subtituloBuscador").textContent =
+    "Encuentra el producto correcto en segundos — y qué ofrecer cuando no hay stock.";
+  divAviso.innerHTML = `<b>Catálogo completo de ROGODI (7,224 productos).</b> Busca por código, medida (H4, H11, 9007…), línea (Spyder, Eco, X-Pro…) o palabra clave. Cuando un producto esté agotado, el buscador te dirá qué alternativa ofrecer al cliente.`;
+  btnCambiarModo.querySelector("img").src = "/autozeichen-logo.jpg";
+  btnCambiarModo.title = "Cambiar a catálogo de Autozeichen";
+  cambiarCarritoActivo(CARRITO_KEY_ROGODI);
+  renderResultados();
+}
+
+btnCambiarModo.addEventListener("click", () => {
+  if (modoAutozeichen) activarModoRogodi(); else activarModoAutozeichen();
+});
 
 function bannerTemporadaHtml(t, nombreCategoria) {
   const titulo = nombreCategoria ? `${t.nombre} → ${nombreCategoria}` : t.nombre;
@@ -680,6 +850,7 @@ function buscarTexto(texto) {
 
 campo.addEventListener("input", () => {
   if (temporadaActiva) resetEstadoTemporada();
+  if (azTipoActivo) resetEstadoAutozeichenNav();
   clearTimeout(temporizador);
   temporizador = setTimeout(buscar, 250);
 });
@@ -701,8 +872,10 @@ function refrescarPrecios() {
   // temporada, resultados de busqueda, etc.).
   if (categoriaActivaFamilia) {
     divResultados.innerHTML = productosCategoriaActual.map(tarjetaHtml).join("");
-  } else if (temporadaActiva) {
-    // viendo la grilla de categorias: no hay precios que actualizar aqui.
+  } else if (azMarcaActiva) {
+    divResultados.innerHTML = productosAzActual.map(tarjetaHtml).join("");
+  } else if (temporadaActiva || azTipoActivo) {
+    // viendo la grilla de categorias/marcas: no hay precios que actualizar aqui.
   } else {
     renderResultados();
   }
@@ -756,10 +929,19 @@ function actualizarBadgeCarrito() {
   if (totalItems > 0) { badge.style.display = "flex"; badge.textContent = totalItems; }
   else { badge.style.display = "none"; }
 }
+function cambiarCarritoActivo(clave) {
+  CARRITO_KEY = clave;
+  carrito = cargarCarrito();
+  actualizarBadgeCarrito();
+  if (modalCarrito && modalCarrito.style.display !== "none") renderCarrito();
+}
 function agregarAlCarrito(p) {
   const existente = carrito.find(it => it.id_articulo === p.id_articulo);
   if (existente) existente.cantidad += 1;
-  else carrito.push({ id_articulo: p.id_articulo, codigo: p.codigo, descripcion: p.descripcion, precio: p.precio, cantidad: 1 });
+  else carrito.push({
+    id_articulo: p.id_articulo, codigo: p.codigo, descripcion: p.descripcion, precio: p.precio,
+    foto_url: p.foto_url || null, cantidad: 1,
+  });
   guardarCarrito();
   actualizarBadgeCarrito();
 }
@@ -822,7 +1004,7 @@ function renderCarrito() {
 
 function textoCotizacion() {
   const fecha = new Date().toLocaleDateString("es-MX");
-  const lineas = [`Cotización ROGODI — ${fecha}`, ""];
+  const lineas = [`Cotización ${modoAutozeichen ? "AUTOZEICHEN" : "ROGODI"} — ${fecha}`, ""];
   carrito.forEach(it => {
     const unit = precioConDescuento(it.precio);
     const subtotal = unit * it.cantidad;
@@ -948,8 +1130,8 @@ document.getElementById("btnGenerarPDF").addEventListener("click", async () => {
       return {
         codigo: it.codigo,
         descripcion: f.descripcion || it.descripcion,
-        existencia: f.existencia ?? null,
-        foto_url: f.foto_url || null,
+        existencia: f.existencia ?? it.existencia ?? null,
+        foto_url: f.foto_url || it.foto_url || null,
         cantidad: it.cantidad,
         precioUnit: unit,
         subtotal: unit * it.cantidad,
@@ -958,6 +1140,7 @@ document.getElementById("btnGenerarPDF").addEventListener("click", async () => {
 
     const payload = {
       cliente, agente,
+      marca: modoAutozeichen ? "autozeichen" : "rogodi",
       descuentoPct,
       fechaISO: new Date().toISOString(),
       items,
@@ -1369,6 +1552,15 @@ function objReglasHtml() {
 
 const modalObjeciones = document.getElementById("modalObjeciones");
 const contenidoObjeciones = document.getElementById("contenidoObjeciones");
+
+const menuExcel = document.getElementById("menuExcel");
+document.getElementById("btnExcel").addEventListener("click", (e) => {
+  e.stopPropagation();
+  menuExcel.classList.toggle("abierto");
+});
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".fab-excel-wrap")) menuExcel.classList.remove("abierto");
+});
 
 document.getElementById("btnObjeciones").addEventListener("click", () => {
   contenidoObjeciones.innerHTML = objeccionMenuHtml();

@@ -141,9 +141,14 @@
 <div id="contenedorPaginas"></div>
 
 <script>
-const LOGO_URL = location.origin + "/logo-rogodi.png";
+let datos = null;
+try { datos = JSON.parse(sessionStorage.getItem("rogodi_cotizacion_pdf") || "null"); } catch (e) { datos = null; }
+const ES_AUTOZEICHEN = datos && datos.marca === "autozeichen";
+const NOMBRE_MARCA = ES_AUTOZEICHEN ? "AUTOZEICHEN" : "ROGODI MÉXICO";
+const LOGO_URL = location.origin + (ES_AUTOZEICHEN ? "/autozeichen-logo.jpg" : "/logo-rogodi.png");
 const TELEFONO = "+52 55 1260 0816";
-const SITIO_WEB = "www.rogodi.net";
+const SITIO_WEB = ES_AUTOZEICHEN ? "www.autozeichen.com" : "www.rogodi.net";
+if (ES_AUTOZEICHEN) document.title = "Cotización AUTOZEICHEN";
 
 function formatoMoneda(n) {
   return "$" + (n || 0).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -207,9 +212,6 @@ function importeALetras(total) {
 }
 
 // ---------- carga de datos ----------
-let datos = null;
-try { datos = JSON.parse(sessionStorage.getItem("rogodi_cotizacion_pdf") || "null"); } catch (e) { datos = null; }
-
 const cont = document.getElementById("contenedorPaginas");
 if (!datos || !datos.items || !datos.items.length) {
   cont.innerHTML = `<div class="aviso-vacio">No hay datos de cotización para mostrar.<br>Cierra esta pestaña y genera el PDF desde el carrito del buscador.</div>`;
@@ -251,7 +253,7 @@ async function descargarPDF() {
       doc.addImage(imagen, "JPEG", 0, 0, 215.9, 279.4);
     }
     const nombreCliente = (datos.cliente || "cotizacion").trim().replace(/[^a-zA-Z0-9]+/g, "_") || "cotizacion";
-    doc.save(`Cotizacion_ROGODI_${nombreCliente}.pdf`);
+    doc.save(`Cotizacion_${ES_AUTOZEICHEN ? "AUTOZEICHEN" : "ROGODI"}_${nombreCliente}.pdf`);
     barra.textContent = "PDF descargado.";
   } catch (e) {
     console.error(e);
@@ -350,7 +352,7 @@ function bloqueTotales(d) {
 function renderPagina(d, pag, numPagina, totalPaginas, numeroBase, fecha, vigenteHasta, fmtFecha, fmtFechaHora) {
   const encabezado = numPagina === 1
     ? `<div class="enc-completo">
-         <img src="${LOGO_URL}" alt="ROGODI">
+         <img src="${LOGO_URL}" alt="${NOMBRE_MARCA}">
          <div class="enc-titulo"><h1>COTIZACIÓN</h1></div>
        </div>
        <div class="enc-meta">
@@ -364,7 +366,7 @@ function renderPagina(d, pag, numPagina, totalPaginas, numeroBase, fecha, vigent
          </div>
        </div>`
     : `<div class="enc-compacto">
-         <div><b>ROGODI MÉXICO</b> — Cliente: ${escapeHtml(d.cliente || "-")}</div>
+         <div><b>${NOMBRE_MARCA}</b> — Cliente: ${escapeHtml(d.cliente || "-")}</div>
          <div>Página ${numPagina} de ${totalPaginas}</div>
        </div>`;
 
